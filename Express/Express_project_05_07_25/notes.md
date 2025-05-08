@@ -4,3 +4,10 @@
   https://youtu.be/9BD9eK9VqXA?si=EjqU2FGon6dKUqUx
 
 - Get / - The Get is called HTTP verb and / is called the route.
+
+- CRUD - create, read ,update and delete
+
+- Read -> GET
+- Create -> Post
+- update -> put
+- delete -> delete
