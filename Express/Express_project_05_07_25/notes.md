@@ -11,3 +11,10 @@
 - Create -> Post
 - update -> put
 - delete -> delete
+
+**Backend-full-course_2**
+
+# NVM
+
+- We need the most recent node, so we are going to install something called nvm. NVM is a Node Version Manager, its a small bash?Zsh utility that lets you, install multiple versions of node, switch or use any installed version in your current shell session, uninstall old versions you no longer need.
+-
