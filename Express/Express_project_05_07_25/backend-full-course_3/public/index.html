@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo App | Express + PostgreSQL + JWT</title>
+    <!-- Fanta.css for base theming -->
+    <link rel="stylesheet" href="/fanta.css" />
+    <!-- Custom styles override and layout -->
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- Authentication Form (visible by default) -->
+      <section id="auth">
+        <div>
+          <h2 class="sign-up-text">Login</h2>
+          <p>Create an account!</p>
+        </div>
+
+        <p id="error" class="hidden"></p>
+        <input id="emailInput" type="email" placeholder="Email" />
+        <input id="passwordInput" type="password" placeholder="Password" />
+        <button id="authBtn" onclick="authenticate()">Submit</button>
+        <hr />
+        <div class="register-content">
+          <p>Don't have an account?</p>
+          <button id="registerBtn" onclick="toggleIsRegister()">Sign up</button>
+        </div>
+      </section>
+
+      <!-- Dashboard (hidden until authenticated) -->
+      <header class="hidden">
+        <h1 class="text-gradient">You have 0 open tasks.</h1>
+      </header>
+      <nav class="hidden tab-container">
+        <button onclick="changeTab('All')" class="tab-button selected-tab">
+          <h4>All <span>(0)</span></h4>
+        </button>
+        <button onclick="changeTab('Open')" class="tab-button">
+          <h4>Open <span>(0)</span></h4>
+        </button>
+        <button onclick="changeTab('Complete')" class="tab-button">
+          <h4>Complete <span>(0)</span></h4>
+        </button>
+      </nav>
+      <main class="hidden"></main>
+    </div>
+
+    <!-- Application script -->
+    <script>
+      // Visibility helpers
+      const show = (el) => el.classList.remove("hidden");
+      const hide = (el) => el.classList.add("hidden");
+
+      // Elements
+      const authSection = document.getElementById("auth");
+      const errorText = document.getElementById("error");
+      const emailInput = document.getElementById("emailInput");
+      const passwordInput = document.getElementById("passwordInput");
+      const authBtn = document.getElementById("authBtn");
+      const registerBtn = document.getElementById("registerBtn");
+      const headerEl = document.querySelector("header");
+      const navEl = document.querySelector("nav");
+      const mainEl = document.querySelector("main");
+      let navButtons = [];
+
+      let token = localStorage.getItem("token");
+      let todos = [];
+      let isRegister = false;
+      let selectedTab = "All";
+
+      // API base
+      const apiBase = "/";
+
+      // Initialize on load
+      window.addEventListener("DOMContentLoaded", () => {
+        navButtons = Array.from(document.querySelectorAll(".tab-button"));
+        if (token) showDashboard();
+      });
+
+      // Toggle register/login
+      function toggleIsRegister() {
+        isRegister = !isRegister;
+        registerBtn.innerText = isRegister ? "Sign in" : "Sign up";
+        authSection.querySelector("h2").innerText = isRegister
+          ? "Sign Up"
+          : "Login";
+        authSection.querySelector(".register-content p").innerText = isRegister
+          ? "Already have an account?"
+          : "Don't have an account?";
+      }
+
+      // Authenticate (login or register)
+      async function authenticate() {
+        const email = emailInput.value;
+        const pass = passwordInput.value;
+        if (!email.includes("@") || pass.length < 6) return;
+
+        hide(errorText);
+        authBtn.innerText = "Processing...";
+
+        try {
+          const url = apiBase + (isRegister ? "auth/register" : "auth/login");
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: email, password: pass }),
+          });
+          const data = await res.json();
+          if (data.token) {
+            token = data.token;
+            localStorage.setItem("token", token);
+            showDashboard();
+          } else {
+            throw new Error(data.message || "Authentication failed");
+          }
+        } catch (err) {
+          errorText.innerText = err.message;
+          show(errorText);
+        } finally {
+          authBtn.innerText = "Submit";
+        }
+      }
+
+      // Show dashboard
+      async function showDashboard() {
+        hide(authSection);
+        show(headerEl);
+        show(navEl);
+        show(mainEl);
+        await fetchTodos();
+      }
+
+      // Fetch todos from API
+      async function fetchTodos() {
+        const res = await fetch(apiBase + "todos", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        todos = await res.json();
+        renderTodos();
+      }
+
+      // Render todo items
+      function renderTodos() {
+        updateHeaderText();
+        updateNavCount();
+
+        const list =
+          todos
+            .filter((todo) => {
+              if (selectedTab === "All") return true;
+              return selectedTab === "Complete"
+                ? todo.completed
+                : !todo.completed;
+            })
+            .map((todo) => {
+              return `
+              <div class="todo-item${todo.completed ? " todo-complete" : ""}">
+                <p>${todo.task}</p>
+                <div class="todo-buttons">
+                  <button onclick="updateTodo(${todo.id})" \${
+  todo.completed ? 'disabled' : ''
+}>
+                    Done
+                  </button>
+                  <button onclick="deleteTodo(${todo.id})">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            `;
+            })
+            .join("") +
+          `
+          <div class="input-container">
+            <input id="todoInput" placeholder="Add task" />
+            <button onclick="addTodo()">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+        `;
+        mainEl.innerHTML = list;
+      }
+
+      // Update header text
+      function updateHeaderText() {
+        const count = todos.filter((t) => !t.completed).length;
+        headerEl.querySelector("h1").innerText =
+          count === 1
+            ? "You have 1 open task."
+            : `You have ${count} open tasks.`;
+      }
+
+      // Update tab counts
+      function updateNavCount() {
+        navButtons.forEach((btn) => {
+          const label = btn.innerText.split(" ")[0];
+          const count = todos.filter((t) =>
+            label === "All"
+              ? true
+              : label === "Complete"
+              ? t.completed
+              : !t.completed
+          ).length;
+          btn.querySelector("span").innerText = `(${count})`;
+        });
+      }
+
+      // Change tab filter
+      function changeTab(tab) {
+        selectedTab = tab;
+        navButtons.forEach((btn) => {
+          btn.classList.toggle("selected-tab", btn.innerText.includes(tab));
+        });
+        renderTodos();
+      }
+
+      // Add a new todo
+      async function addTodo() {
+        const input = document.getElementById("todoInput");
+        const task = input.value.trim();
+        if (!task) return;
+        await fetch(apiBase + "todos", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ task }),
+        });
+        input.value = "";
+        fetchTodos();
+      }
+
+      // Update a todo to complete
+      async function updateTodo(id) {
+        await fetch(`${apiBase}todos/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ completed: true }),
+        });
+        fetchTodos();
+      }
+
+      // Delete a todo
+      async function deleteTodo(id) {
+        await fetch(`${apiBase}todos/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        fetchTodos();
+      }
+
+      // Logout
+      function logout() {
+        localStorage.removeItem("token");
+        show(authSection);
+        hide(headerEl);
+        hide(navEl);
+        hide(mainEl);
+      }
+    </script>
+  </body>
+</html>
