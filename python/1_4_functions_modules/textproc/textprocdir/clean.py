@@ -1,8 +1,11 @@
 # removes punctuation
 def remove_punctuation(s):
-    str_cleaned = s.isalnum()
-    print(str_cleaned)
-    return str_cleaned
+    cleaned = ""
+    for x in s:
+        if x.isalnum():
+            cleaned += x
+
+    return cleaned
 
 
 print(remove_punctuation("Hello, abel"))
