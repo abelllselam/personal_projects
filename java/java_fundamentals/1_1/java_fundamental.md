@@ -216,3 +216,139 @@ int x =10;
   x /= 3;   // x = x / 3;                → x is now 4
 
   ```
+
+# Control Flow
+
+## If/else
+
+- An if statement lets your program make decisions based on a boolean condition.
+
+```java
+if (condition) {
+    // runs when condition is true
+} else {
+    // runs when condition is false
+}
+```
+
+- code example:
+
+```java
+public class IfElseExample {
+    public static void main(String[] args) {
+        double interest = 150.0;
+
+        if (interest > 200) {
+            System.out.println("High interest earned!");
+        } else {
+            System.out.println("Interest is modest.");
+        }
+    }
+}
+//if interest is greater than 200, the first block runs; otherwise the else block runs.
+```
+
+## ELSE IF
+
+```java
+if (condition1) {
+    // runs if condition1 is true
+} else if (condition2) {
+    // runs if condition1 is false AND condition2 is true
+} else {
+    // runs if both condition1 and condition2 are false
+}
+
+```
+
+- code example
+
+```java
+public class GradeChecker {
+    public static void main(String[] args) {
+        int score = 85;
+
+        if (score >= 90) {
+            System.out.println("Grade: A");
+        } else if (score >= 80) {
+            System.out.println("Grade: B");
+        } else if (score >= 70) {
+            System.out.println("Grade: C");
+        } else {
+            System.out.println("Grade: D or F");
+        }
+    }
+}
+
+// If score is 90 or above, print “A.”
+// Otherwise if it’s 80–89, print “B.”
+// Otherwise if it’s 70–79, print “C.”
+// Otherwise print “D or F.”
+```
+
+## Ternary Operator
+
+- For simple two-branch conditions you can use the ternary.
+
+```java
+variable = (condition) ? valueIfTrue : valueIfFalse;
+```
+
+- Code Example:
+
+```java
+public class TernaryExample {
+    public static void main(String[] args) {
+        double interest = 150.0;
+        String message = (interest > 200)
+            ? "High interest earned!"
+            : "Interest is modest.";
+
+        System.out.println(message);
+    }
+}
+
+```
+
+## Switch Statement
+
+```java
+switch (variable) {
+    case value1:
+        // runs if variable == value1
+        break;
+    case value2:
+        // runs if variable == value2
+        break;
+    // ...
+    default:
+        // runs if none of the above cases match
+}
+```
+
+```java
+public class DayOfWeek {
+    public static void main(String[] args) {
+        int day = 3;
+        String dayName;
+
+        switch (day) {
+            case 1:
+                dayName = "Sunday";
+                break;
+            case 2:
+                dayName = "Monday";
+                break;
+            case 3:
+                dayName = "Tuesday";
+                break;
+            // ... up to case 7
+            default:
+                dayName = "Invalid day";
+        }
+
+        System.out.println("Today is " + dayName);
+    }
+}
+
+```
