@@ -4,7 +4,7 @@ public class VariablesStepB {
 
     public void demo() {
         int local = 0; //local variable (NOT intialized)
-        System.out.println(local); //this will cause a compile error
+        System.out.println(local); //this will cause a compile error when the local variable is not initialized. 
     }
 
     public static void main(String [] args){
