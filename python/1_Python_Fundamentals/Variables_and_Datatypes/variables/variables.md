@@ -95,3 +95,39 @@ bool("")       # -> False
 int("abc")   # ValueError
 
 ```
+
+**Basic Operators (Quick Reference)**
+
+- Arithmetic: + - \* / // % \*\*
+  - / - float division, // -> floor division, % -> remainder
+- Comparison: == != < > <= >=
+- Logical: and, or, not
+- String concat: "Hi"+"Abel" -> "Hi Abel"
+- Repetition: "ha" \* 3 -> "hahaha"
+  **Useful patterns: formatted output (f-strings)**
+- F-Strings are the modern, readable way to embed values into strings:
+
+```py
+name = "Abel"
+age = 30
+print(f"{name} is {age} years old.")    # Abel is 30 years old.
+
+```
+
+- You can format number:
+
+```py
+pi = 3.14159265
+print(f"{pi:.2f}")   # prints 3.14 (two decimal places)
+
+```
+
+**Truthiness (used in conditions)**
+
+- Values that evaluate to False in boolean contexts:
+- Falsy
+  - 0, 0.0
+  - "" (empty string)
+  - [], (), {}(empty containers)
+  - None
+- Everything else is True. This matters for if x: checks.
